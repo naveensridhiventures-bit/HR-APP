@@ -56,7 +56,13 @@ export function Sidebar() {
 }
 
 export function BottomNav() {
-  const mobileItems = NAV_ITEMS.slice(0, 5)
+  const mobileItems = [
+    { to: '/',            label: 'Dashboard', mobileLabel: 'Home',      icon: LayoutGrid, end: true },
+    { to: '/pipeline',    label: 'Pipelines', mobileLabel: 'Pipeline',  icon: Users },
+    { to: '/followups',   label: 'Follow-ups',mobileLabel: 'Follow-ups',icon: CalendarClock },
+    { to: '/performance', label: 'HR Performance', mobileLabel: 'Stats',icon: BarChart2 },
+    { to: '/settings',    label: 'Settings',  mobileLabel: 'Settings',  icon: Settings },
+  ]
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 flex border-t border-ink-100 bg-paper-card/95 backdrop-blur lg:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
