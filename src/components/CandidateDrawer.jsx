@@ -39,12 +39,12 @@ export default function CandidateDrawer() {
   const candidate = candidates.find(c => c.id === openCandidateId)
 
   const history = useMemo(
-    () => followups.filter(f => f.candidateId === openCandidateId)
+    () => !openCandidateId ? [] : followups.filter(f => f.candidateId === openCandidateId)
                    .sort((a, b) => b.date > a.date ? 1 : -1),
     [followups, openCandidateId]
   )
   const candCallLogs = useMemo(
-    () => (callLogs || []).filter(l => l.candidateId === openCandidateId)
+    () => !openCandidateId ? [] : (callLogs || []).filter(l => l.candidateId === openCandidateId)
                           .sort((a, b) => b.date > a.date ? 1 : -1),
     [callLogs, openCandidateId]
   )

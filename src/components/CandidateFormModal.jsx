@@ -24,16 +24,16 @@ export default function CandidateFormModal() {
     if (addModalOpen) { setForm(empty(addModalDept)); setErrors({}); setAddingRole(false); setNewRoleLabel('') }
   }, [addModalOpen, addModalDept])
 
-  if (!addModalOpen) return null
-
-  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
-  const rolesForDept = roles.filter(r => r.department === form.department)
-
   const duplicatePhone = useMemo(() => {
     const p = form.phone.replace(/\D/g, '')
     if (p.length < 10) return null
     return candidates.find(c => c.phone.replace(/\D/g, '') === p) || null
   }, [form.phone, candidates])
+
+  if (!addModalOpen) return null
+
+  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
+  const rolesForDept = roles.filter(r => r.department === form.department)
 
   const onClose = () => { setForm(empty(addModalDept)); setErrors({}); setAddingRole(false); setNewRoleLabel(''); closeAddModal() }
 
