@@ -154,7 +154,7 @@ export function AppProvider({ children }) {
     addDepartment, deleteDepartment, addRole, deleteRole,
     addHR, removeHR,
   }), [candidates, departments, roles, hrList, followups, callLogs,
-       loading, error, toasts, pushToast, load, companyName, setCompanyName,
+       loading, error, usingLocalFallback, toasts, pushToast, load, companyName, setCompanyName,
        addCandidate, updateCandidate, moveStage, deleteCandidate,
        addFollowUp, addCallLog, addDepartment, deleteDepartment, addRole, deleteRole, addHR, removeHR])
 
