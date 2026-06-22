@@ -32,11 +32,26 @@ export function AppProvider({ children }) {
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3200)
   }, [])
 
+  const sanitizeCandidate = (c) => ({
+    ...c,
+    name:         String(c.name        || ''),
+    phone:        String(c.phone       || ''),
+    department:   String(c.department  || ''),
+    role:         String(c.role        || ''),
+    stage:        String(c.stage       || 'applied'),
+    source:       String(c.source      || ''),
+    assignedTo:   String(c.assignedTo  || ''),
+    notes:        String(c.notes       || ''),
+    nextFollowUp: c.nextFollowUp ? String(c.nextFollowUp) : null,
+    createdAt:    String(c.createdAt   || ''),
+    updatedAt:    String(c.updatedAt   || ''),
+  })
+
   const load = useCallback(async () => {
     setLoading(true); setError(null)
     try {
       const data = await backend.fetchAll()
-      setCandidates(data.candidates   || [])
+      setCandidates((data.candidates || []).map(sanitizeCandidate))
       setDepartments(data.departments?.length ? data.departments : DEFAULT_DEPARTMENTS)
       setRoles(data.roles?.length     ? data.roles              : DEFAULT_ROLES)
       setHrList(data.hrList?.length   ? data.hrList             : DEFAULT_HR_LIST)
@@ -54,7 +69,7 @@ export function AppProvider({ children }) {
 
   const addCandidate = useCallback(async (candidate) => {
     const res = await backend.addCandidate(candidate)
-    const created = res.candidate || { ...candidate, id: res.id }
+    const created = sanitizeCandidate(res.candidate || { ...candidate, id: res.id })
     setCandidates(cs => [created, ...cs])
     pushToast(`${candidate.name} added to the pipeline`, 'success')
     return created
