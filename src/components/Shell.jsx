@@ -7,15 +7,15 @@ import { Avatar } from './ui/Primitives'
 import { InstallButton } from './InstallPrompt'
 
 const NAV_ITEMS = [
-  { to: '/',            label: 'Dashboard',     icon: LayoutGrid, end: true },
-  { to: '/pipeline',    label: 'Pipelines',     icon: Users },
-  { to: '/followups',   label: 'Follow-ups',    icon: CalendarClock },
-  { to: '/candidates',  label: 'All Candidates',icon: Search },
-  { to: '/performance', label: 'HR Performance',icon: BarChart2 },
-  { to: '/settings',    label: 'Settings',      icon: Settings },
+  { to: '/',            label: 'Dashboard', mobileLabel: 'Home',      icon: LayoutGrid, end: true },
+  { to: '/pipeline',    label: 'Pipelines', mobileLabel: 'Pipeline',  icon: Users },
+  { to: '/followups',   label: 'Follow-ups',mobileLabel: 'Follow-ups',icon: CalendarClock },
+  { to: '/candidates',  label: 'Candidates',mobileLabel: 'All',       icon: Search },
+  { to: '/performance', label: 'HR Performance', mobileLabel: 'Stats',icon: BarChart2 },
+  { to: '/settings',    label: 'Settings',  mobileLabel: 'Settings',  icon: Settings },
 ]
 
-function NavItem({ to, label, icon: Icon, end, mobile }) {
+function NavItem({ to, label, mobileLabel, icon: Icon, end, mobile }) {
   return (
     <NavLink
       to={to}
@@ -28,8 +28,8 @@ function NavItem({ to, label, icon: Icon, end, mobile }) {
             }`
       }
     >
-      <Icon size={mobile ? 18 : 17} strokeWidth={1.8} />
-      {label}
+      <Icon size={mobile ? 20 : 17} strokeWidth={1.8} />
+      <span className={mobile ? 'truncate w-full text-center' : ''}>{mobile ? (mobileLabel || label) : label}</span>
     </NavLink>
   )
 }
