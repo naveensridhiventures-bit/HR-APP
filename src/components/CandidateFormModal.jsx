@@ -25,9 +25,9 @@ export default function CandidateFormModal() {
   }, [addModalOpen, addModalDept])
 
   const duplicatePhone = useMemo(() => {
-    const p = form.phone.replace(/\D/g, '')
+    const p = String(form.phone || '').replace(/\D/g, '')
     if (p.length < 10) return null
-    return candidates.find(c => c.phone.replace(/\D/g, '') === p) || null
+    return candidates.find(c => String(c.phone || '').replace(/\D/g, '') === p) || null
   }, [form.phone, candidates])
 
   if (!addModalOpen) return null
@@ -48,7 +48,7 @@ export default function CandidateFormModal() {
     e.preventDefault()
     const errs = {}
     if (!form.name.trim()) errs.name = 'Name is required'
-    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 10) errs.phone = 'Enter a valid 10-digit phone'
+    if (!form.phone.trim() || String(form.phone).replace(/\D/g, '').length < 10) errs.phone = 'Enter a valid 10-digit phone'
     if (!form.department) errs.department = 'Pick a pipeline'
     setErrors(errs)
     if (Object.keys(errs).length) return
