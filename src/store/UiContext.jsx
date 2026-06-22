@@ -1,23 +1,22 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useState } from 'react'
 
 const UiCtx = createContext(null)
 
 export function UiProvider({ children }) {
   const [openCandidateId, setOpenCandidateId] = useState(null)
-  const [addModalOpen, setAddModalOpen] = useState(false)
-  const [addModalDept, setAddModalDept] = useState(null)
+  const [addModalOpen, setAddModalOpen]       = useState(false)
+  const [addModalDept, setAddModalDept]       = useState(null)
 
-  const value = useMemo(() => ({
-    openCandidateId,
-    openCandidate: (id) => setOpenCandidateId(id),
-    closeCandidate: () => setOpenCandidateId(null),
-    addModalOpen,
-    addModalDept,
-    openAddModal: (dept = null) => { setAddModalDept(dept); setAddModalOpen(true) },
-    closeAddModal: () => setAddModalOpen(false)
-  }), [openCandidateId, addModalOpen, addModalDept])
+  const openCandidate  = useCallback((id)         => setOpenCandidateId(id),   [])
+  const closeCandidate = useCallback(()           => setOpenCandidateId(null), [])
+  const openAddModal   = useCallback((dept = null) => { setAddModalDept(dept); setAddModalOpen(true) }, [])
+  const closeAddModal  = useCallback(()           => setAddModalOpen(false),   [])
 
-  return <UiCtx.Provider value={value}>{children}</UiCtx.Provider>
+  return (
+    <UiCtx.Provider value={{ openCandidateId, openCandidate, closeCandidate, addModalOpen, addModalDept, openAddModal, closeAddModal }}>
+      {children}
+    </UiCtx.Provider>
+  )
 }
 
 export const useUi = () => {
