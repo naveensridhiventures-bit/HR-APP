@@ -5,10 +5,12 @@ import { DEFAULT_DEPARTMENTS, DEFAULT_ROLES, DEFAULT_HR_LIST } from '../lib/cons
 
 const AppCtx = createContext(null)
 const backend = isApiConfigured() ? api : localStore
-export const usingLocalFallback = !isApiConfigured()
+const LOCAL_FALLBACK = !isApiConfigured()
 
 const COMPANY_KEY = 'sridhi-hr:company-name'
-const readCompanyName = () => { try { return localStorage.getItem(COMPANY_KEY) || 'Sridhi HR' } catch { return 'Sridhi HR' } }
+const readCompanyName = () => {
+  try { return localStorage.getItem(COMPANY_KEY) || 'Sridhi HR' } catch { return 'Sridhi HR' }
+}
 
 let toastId = 0
 
@@ -40,7 +42,10 @@ export function AppProvider({ children }) {
       setHrList(data.hrList?.length   ? data.hrList             : DEFAULT_HR_LIST)
       setFollowups(data.followups     || [])
       setCallLogs(data.callLogs       || [])
-      if (data.companyName) { setCompanyNameState(data.companyName); try { localStorage.setItem(COMPANY_KEY, data.companyName) } catch {} }
+      if (data.companyName) {
+        setCompanyNameState(data.companyName)
+        try { localStorage.setItem(COMPANY_KEY, data.companyName) } catch {}
+      }
     } catch (e) { setError(e.message || 'Could not load data') }
     finally { setLoading(false) }
   }, [])
@@ -80,7 +85,9 @@ export function AppProvider({ children }) {
       const res = await backend.addFollowUp(candidateId, entry)
       const row = res.entry || { id: Date.now(), candidateId, date: new Date().toISOString().slice(0,10), ...entry }
       setFollowups(f => [row, ...f])
-      setCandidates(cs => cs.map(c => c.id === candidateId ? { ...c, notes: entry.note || c.notes, nextFollowUp: entry.nextFollowUp ?? c.nextFollowUp } : c))
+      setCandidates(cs => cs.map(c => c.id === candidateId
+        ? { ...c, notes: entry.note || c.notes, nextFollowUp: entry.nextFollowUp ?? c.nextFollowUp }
+        : c))
       pushToast('Follow-up logged', 'success')
     } catch (e) { pushToast(e.message || 'Could not log follow-up', 'error') }
   }, [pushToast])
@@ -116,7 +123,10 @@ export function AppProvider({ children }) {
       const res = await backend.addRole(department, label)
       if (res.role) setRoles(r => r.map(x => x.id === tempId ? res.role : x))
       pushToast(`${label.trim()} added`, 'success')
-    } catch (e) { setRoles(r => r.filter(x => x.id !== tempId)); pushToast(e.message || 'Could not add role', 'error') }
+    } catch (e) {
+      setRoles(r => r.filter(x => x.id !== tempId))
+      pushToast(e.message || 'Could not add role', 'error')
+    }
   }, [pushToast])
 
   const deleteRole = useCallback(async (id) => {
@@ -145,24 +155,31 @@ export function AppProvider({ children }) {
     backend.updateCompanyName?.(trimmed)
   }, [])
 
-  const value = useMemo(() => ({
+  const ctx = useMemo(() => ({
     candidates, departments, roles, hrList, followups, callLogs,
-    loading, error, usingLocalFallback, toasts, pushToast, reload: load,
+    loading, error,
+    usingLocalFallback: LOCAL_FALLBACK,
+    toasts, pushToast,
+    reload: load,
     companyName, setCompanyName,
     addCandidate, updateCandidate, moveStage, deleteCandidate,
     addFollowUp, addCallLog,
     addDepartment, deleteDepartment, addRole, deleteRole,
     addHR, removeHR,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [candidates, departments, roles, hrList, followups, callLogs,
-       loading, error, usingLocalFallback, toasts, pushToast, load, companyName, setCompanyName,
+       loading, error, toasts, pushToast, load, companyName, setCompanyName,
        addCandidate, updateCandidate, moveStage, deleteCandidate,
-       addFollowUp, addCallLog, addDepartment, deleteDepartment, addRole, deleteRole, addHR, removeHR])
+       addFollowUp, addCallLog, addDepartment, deleteDepartment,
+       addRole, deleteRole, addHR, removeHR])
 
-  return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>
+  return <AppCtx.Provider value={ctx}>{children}</AppCtx.Provider>
 }
 
 export const useApp = () => {
-  const ctx = useContext(AppCtx)
-  if (!ctx) throw new Error('useApp must be used within AppProvider')
-  return ctx
+  const c = useContext(AppCtx)
+  if (!c) throw new Error('useApp must be used within AppProvider')
+  return c
 }
+
+export { LOCAL_FALLBACK as usingLocalFallback }
