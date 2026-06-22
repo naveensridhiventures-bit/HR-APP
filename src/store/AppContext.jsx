@@ -1,11 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { api, isApiConfigured } from '../lib/api'
 import { localStore } from '../lib/localStore'
 import { DEFAULT_DEPARTMENTS, DEFAULT_ROLES, DEFAULT_HR_LIST } from '../lib/constants'
 
 const AppCtx = createContext(null)
 const backend = isApiConfigured() ? api : localStore
-const LOCAL_FALLBACK = !isApiConfigured()
+export const usingLocalFallback = !isApiConfigured()
 
 const COMPANY_KEY = 'sridhi-hr:company-name'
 const readCompanyName = () => {
@@ -155,31 +155,22 @@ export function AppProvider({ children }) {
     backend.updateCompanyName?.(trimmed)
   }, [])
 
-  const ctx = useMemo(() => ({
+  const value = {
     candidates, departments, roles, hrList, followups, callLogs,
-    loading, error,
-    usingLocalFallback: LOCAL_FALLBACK,
-    toasts, pushToast,
-    reload: load,
+    loading, error, usingLocalFallback,
+    toasts, pushToast, reload: load,
     companyName, setCompanyName,
     addCandidate, updateCandidate, moveStage, deleteCandidate,
     addFollowUp, addCallLog,
     addDepartment, deleteDepartment, addRole, deleteRole,
     addHR, removeHR,
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [candidates, departments, roles, hrList, followups, callLogs,
-       loading, error, toasts, pushToast, load, companyName, setCompanyName,
-       addCandidate, updateCandidate, moveStage, deleteCandidate,
-       addFollowUp, addCallLog, addDepartment, deleteDepartment,
-       addRole, deleteRole, addHR, removeHR])
+  }
 
-  return <AppCtx.Provider value={ctx}>{children}</AppCtx.Provider>
+  return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>
 }
 
 export const useApp = () => {
-  const c = useContext(AppCtx)
-  if (!c) throw new Error('useApp must be used within AppProvider')
-  return c
+  const ctx = useContext(AppCtx)
+  if (!ctx) throw new Error('useApp must be used within AppProvider')
+  return ctx
 }
-
-export { LOCAL_FALLBACK as usingLocalFallback }
