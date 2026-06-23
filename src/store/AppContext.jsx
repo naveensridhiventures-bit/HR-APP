@@ -8,7 +8,7 @@ const backend = isApiConfigured() ? api : localStore
 export const usingLocalFallback = !isApiConfigured()
 
 const COMPANY_KEY = 'sridhi-hr:company-name'
-const CACHE_KEY   = 'sridhi-hr:cache-v2'
+const CACHE_KEY   = 'sridhi-hr:cache-v3'
 const CACHE_TTL   = 5 * 60 * 1000 // 5 minutes
 
 const readCompanyName = () => {
@@ -57,6 +57,8 @@ export function AppProvider({ children }) {
 
   const sanitizeCandidate = (c) => ({
     ...c,
+    id:           String(c.id || c.iD || c.ID || ''),
+    candidateId:  c.candidateId || c.candidateID || c.CandidateId || undefined,
     name:         String(c.name        || ''),
     phone:        String(c.phone       || ''),
     department:   String(c.department  || ''),
