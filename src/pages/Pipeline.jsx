@@ -6,7 +6,7 @@ import PipelineBoard from '../components/PipelineBoard'
 import { useApp } from '../store/AppContext'
 
 export default function Pipeline() {
-  const { departments } = useApp()
+  const { departments, loading } = useApp()
   const [params, setParams] = useSearchParams()
   const active = params.get('dept') || departments[0]?.key
 
@@ -21,7 +21,16 @@ export default function Pipeline() {
       <TopBar title="Pipelines" subtitle="Drag a card to move it to the next stage" />
       <div className="px-2 sm:px-6">
         <DepartmentTabs active={active} onChange={(key) => setParams({ dept: key })} />
-        {active && <PipelineBoard department={active} />}
+        {/* key=active forces PipelineBoard + DragDropContext to fully remount on tab switch
+            preventing stale drag state that caused the blank screen */}
+        {active && !loading && (
+          <PipelineBoard key={active} department={active} />
+        )}
+        {loading && (
+          <div className="flex items-center justify-center py-20 text-sm text-slate">
+            Loading…
+          </div>
+        )}
       </div>
     </div>
   )
