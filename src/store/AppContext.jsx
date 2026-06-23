@@ -65,7 +65,7 @@ export function AppProvider({ children }) {
     source:       String(c.source      || ''),
     assignedTo:   String(c.assignedTo  || ''),
     notes:        String(c.notes       || ''),
-    nextFollowUp: c.nextFollowUp ? String(c.nextFollowUp) : null,
+    nextFollowUp: c.nextFollowUp instanceof Date ? c.nextFollowUp.toISOString().slice(0,10) : (c.nextFollowUp ? String(c.nextFollowUp) : null),
     createdAt:    String(c.createdAt   || ''),
     updatedAt:    String(c.updatedAt   || ''),
   })
