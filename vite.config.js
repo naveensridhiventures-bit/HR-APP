@@ -29,11 +29,17 @@ export default defineConfig({
         navigateFallback: '/index.html',
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.pathname.startsWith('/exec') || url.hostname.includes('script.google.com'),
-            handler: 'NetworkFirst',
+            // Use CacheFirst for GAS API — serve cache instantly, update in background
+            urlPattern: ({ url }) =>
+              url.hostname.includes('script.google.com') ||
+              url.hostname.includes('script.googleusercontent.com'),
+            handler: 'CacheFirst',
             options: {
-              cacheName: 'sridhi-api-cache',
-              networkTimeoutSeconds: 8,
+              cacheName: 'sridhi-api-cache-v2',
+              expiration: {
+                maxAgeSeconds: 60,      // Cache GAS responses for 60 seconds max
+                maxEntries: 10,
+              },
               cacheableResponse: { statuses: [0, 200] }
             }
           }
