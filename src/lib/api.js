@@ -25,6 +25,7 @@ async function post(action, payload = {}) {
   ensureConfigured()
   const res = await fetch(API_URL, {
     method: 'POST',
+    redirect: 'follow',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ action, ...payload }),
   })
