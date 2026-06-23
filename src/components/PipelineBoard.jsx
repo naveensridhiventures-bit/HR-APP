@@ -11,7 +11,7 @@ export default function PipelineBoard({ department }) {
   const { candidates, departments, moveStage } = useApp()
   const { openAddModal } = useUi()
 
-  const inDept = candidates.filter((c) => c.department === department)
+  const inDept = candidates.filter((c) => c && c.department === department)
 
   if (inDept.length === 0) {
     return (
@@ -35,8 +35,6 @@ export default function PipelineBoard({ department }) {
     const { destination, draggableId, source } = result
     if (!destination) return
     if (destination.droppableId === source.droppableId) return
-    // draggableId is the candidate's id string — only that one candidate moves
-    console.log('[moveStage] id=', draggableId, '→', destination.droppableId)
     moveStage(draggableId, destination.droppableId)
   }
 
@@ -44,15 +42,8 @@ export default function PipelineBoard({ department }) {
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-3 overflow-x-auto pb-4 pt-3">
         {STAGES.map((stage) => {
-          const items = inDept
-            .filter((c) => c.stage === stage.key)
-            .sort((a, b) => {
-              const aDate = String(a.createdAt || '')
-              const bDate = String(b.createdAt || '')
-              const aId   = String(a.id || '')
-              const bId   = String(b.id || '')
-              return aDate.localeCompare(bDate) || aId.localeCompare(bId)
-            })
+          // No sort — just filter. Avoids any localeCompare crash on bad data.
+          const items = inDept.filter((c) => c.stage === stage.key)
 
           return (
             <Droppable droppableId={stage.key} key={stage.key}>
