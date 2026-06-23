@@ -35,6 +35,8 @@ export default function PipelineBoard({ department }) {
     const { destination, draggableId, source } = result
     if (!destination) return
     if (destination.droppableId === source.droppableId) return
+    // draggableId is the candidate's id string — only that one candidate moves
+    console.log('[moveStage] id=', draggableId, '→', destination.droppableId)
     moveStage(draggableId, destination.droppableId)
   }
 
@@ -45,11 +47,10 @@ export default function PipelineBoard({ department }) {
           const items = inDept
             .filter((c) => c.stage === stage.key)
             .sort((a, b) => {
-              // Safe sort — guard against undefined id or createdAt
-              const aDate = a.createdAt || ''
-              const bDate = b.createdAt || ''
-              const aId = a.id || ''
-              const bId = b.id || ''
+              const aDate = String(a.createdAt || '')
+              const bDate = String(b.createdAt || '')
+              const aId   = String(a.id || '')
+              const bId   = String(b.id || '')
               return aDate.localeCompare(bDate) || aId.localeCompare(bId)
             })
 

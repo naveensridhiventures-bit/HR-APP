@@ -133,7 +133,7 @@ export function AppProvider({ children }) {
 
   const updateCandidate = useCallback(async (id, fields) => {
     // Optimistic update — immediately reflect in UI
-    setCandidates(cs => cs.map(c => c.id === id ? { ...c, ...fields } : c))
+    setCandidates(cs => cs.map(c => String(c.id) === String(id) ? { ...c, ...fields } : c))
     try {
       await backend.updateCandidate(id, fields)
       invalidateCache()
@@ -150,7 +150,7 @@ export function AppProvider({ children }) {
     const todayStr = new Date().toISOString().slice(0, 10)
     // Optimistic: update ONLY the candidate with matching id
     setCandidates(cs =>
-      cs.map(c => c.id === id ? { ...c, stage, updatedAt: todayStr } : c)
+      cs.map(c => String(c.id) === String(id) ? { ...c, stage, updatedAt: todayStr } : c)
     )
     try {
       await backend.updateCandidate(id, { stage })
