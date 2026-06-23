@@ -6,10 +6,13 @@ import { STAGES } from '../lib/constants'
 import { useApp } from '../store/AppContext'
 import { useUi } from '../store/UiContext'
 import { Users } from 'lucide-react'
+import { useRef } from 'react'
 
 export default function PipelineBoard({ department }) {
   const { candidates, departments, moveStage } = useApp()
   const { openAddModal } = useUi()
+  // Track dragging state to prevent re-renders mid-drag collapsing columns
+  const draggingRef = useRef(false)
 
   const inDept = candidates.filter((c) => c.department === department)
 
@@ -31,18 +34,29 @@ export default function PipelineBoard({ department }) {
     )
   }
 
+  const onDragStart = () => {
+    draggingRef.current = true
+  }
+
   const onDragEnd = (result) => {
-    const { destination, draggableId } = result
+    draggingRef.current = false
+    const { destination, draggableId, source } = result
     if (!destination) return
+    // Only update if actually moved to a different stage
+    if (destination.droppableId === source.droppableId) return
     const stage = destination.droppableId
     moveStage(draggableId, stage)
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
       <div className="flex gap-3 overflow-x-auto pb-4 pt-3">
         {STAGES.map((stage) => {
-          const items = inDept.filter((c) => c.stage === stage.key)
+          // Stable sort by createdAt so indices never shift unexpectedly
+          const items = inDept
+            .filter((c) => c.stage === stage.key)
+            .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || '') || a.id.localeCompare(b.id))
+
           return (
             <Droppable droppableId={stage.key} key={stage.key}>
               {(provided, snapshot) => (
@@ -62,7 +76,11 @@ export default function PipelineBoard({ department }) {
                   </div>
                   <div className="flex min-h-[60px] flex-col gap-2">
                     {items.map((c, idx) => (
-                      <Draggable draggableId={c.id} index={idx} key={c.id}>
+                      <Draggable
+                        draggableId={c.id}
+                        index={idx}
+                        key={c.id}
+                      >
                         {(dragProvided, dragSnapshot) => (
                           <CandidateCard
                             candidate={c}
