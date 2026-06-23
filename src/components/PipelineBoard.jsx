@@ -6,13 +6,10 @@ import { STAGES } from '../lib/constants'
 import { useApp } from '../store/AppContext'
 import { useUi } from '../store/UiContext'
 import { Users } from 'lucide-react'
-import { useRef } from 'react'
 
 export default function PipelineBoard({ department }) {
   const { candidates, departments, moveStage } = useApp()
   const { openAddModal } = useUi()
-  // Track dragging state to prevent re-renders mid-drag collapsing columns
-  const draggingRef = useRef(false)
 
   const inDept = candidates.filter((c) => c.department === department)
 
@@ -34,28 +31,27 @@ export default function PipelineBoard({ department }) {
     )
   }
 
-  const onDragStart = () => {
-    draggingRef.current = true
-  }
-
   const onDragEnd = (result) => {
-    draggingRef.current = false
     const { destination, draggableId, source } = result
     if (!destination) return
-    // Only update if actually moved to a different stage
     if (destination.droppableId === source.droppableId) return
-    const stage = destination.droppableId
-    moveStage(draggableId, stage)
+    moveStage(draggableId, destination.droppableId)
   }
 
   return (
-    <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-3 overflow-x-auto pb-4 pt-3">
         {STAGES.map((stage) => {
-          // Stable sort by createdAt so indices never shift unexpectedly
           const items = inDept
             .filter((c) => c.stage === stage.key)
-            .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || '') || a.id.localeCompare(b.id))
+            .sort((a, b) => {
+              // Safe sort — guard against undefined id or createdAt
+              const aDate = a.createdAt || ''
+              const bDate = b.createdAt || ''
+              const aId = a.id || ''
+              const bId = b.id || ''
+              return aDate.localeCompare(bDate) || aId.localeCompare(bId)
+            })
 
           return (
             <Droppable droppableId={stage.key} key={stage.key}>
@@ -76,11 +72,7 @@ export default function PipelineBoard({ department }) {
                   </div>
                   <div className="flex min-h-[60px] flex-col gap-2">
                     {items.map((c, idx) => (
-                      <Draggable
-                        draggableId={c.id}
-                        index={idx}
-                        key={c.id}
-                      >
+                      <Draggable draggableId={String(c.id)} index={idx} key={String(c.id)}>
                         {(dragProvided, dragSnapshot) => (
                           <CandidateCard
                             candidate={c}
