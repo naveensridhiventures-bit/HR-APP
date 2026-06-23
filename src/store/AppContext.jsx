@@ -164,9 +164,9 @@ export function AppProvider({ children }) {
   }, [pushToast, load])
 
   const deleteCandidate = useCallback(async (id) => {
-    setCandidates(cs => cs.filter(c => c.id !== id))
-    setCallLogs(ls => ls.filter(l => l.candidateId !== id))
-    setFollowups(fs => fs.filter(f => f.candidateId !== id))
+    setCandidates(cs => cs.filter(c => String(c.id) !== String(id)))
+    setCallLogs(ls => ls.filter(l => String(l.candidateId) !== String(id)))
+    setFollowups(fs => fs.filter(f => String(f.candidateId) !== String(id)))
     try { await backend.deleteCandidate(id); invalidateCache(); pushToast('Candidate removed') }
     catch (e) { pushToast(e.message || 'Could not remove', 'error') }
   }, [pushToast])
@@ -176,7 +176,7 @@ export function AppProvider({ children }) {
       const res = await backend.addFollowUp(candidateId, entry)
       const row = res.entry || { id: Date.now(), candidateId, date: new Date().toISOString().slice(0,10), ...entry }
       setFollowups(f => [row, ...f])
-      setCandidates(cs => cs.map(c => c.id === candidateId
+      setCandidates(cs => cs.map(c => String(c.id) === String(candidateId)
         ? { ...c, notes: entry.note || c.notes, nextFollowUp: entry.nextFollowUp ?? c.nextFollowUp }
         : c))
       invalidateCache()
@@ -247,6 +247,7 @@ export function AppProvider({ children }) {
     setCompanyNameState(trimmed)
     try { localStorage.setItem(COMPANY_KEY, trimmed) } catch {}
     backend.updateCompanyName?.(trimmed)
+    invalidateCache()
   }, [])
 
   const value = {
