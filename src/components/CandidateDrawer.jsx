@@ -5,16 +5,11 @@ import FollowUpBadge from './FollowUpBadge'
 import WhatsAppMenu from './WhatsAppMenu'
 import { useApp } from '../store/AppContext'
 import { useUi } from '../store/UiContext'
-import { STAGES, stageBadgeClasses } from '../lib/constants'
-import { formatDateFull, timeAgo, todayISO } from '../lib/date'
+import { STAGES, stageBadgeClasses, CALL_STATUSES, CALL_STATUS_MAP } from '../lib/constants'
+import { formatDateFull, formatDateTime, timeAgo, todayISO } from '../lib/date'
 import { telLink } from '../lib/contact'
 
-const OUTCOMES = [
-  { key: 'positive',  label: '✅ Positive',      color: 'text-stamp-600' },
-  { key: 'neutral',   label: '🔄 Follow up',      color: 'text-saffron-700' },
-  { key: 'negative',  label: '❌ Not interested', color: 'text-rust-600' },
-  { key: 'no_answer', label: '📵 No answer',      color: 'text-slate' },
-]
+const OUTCOMES = CALL_STATUSES.map(s => ({ key: s.key, label: s.label, color: s.text }))
 
 export default function CandidateDrawer() {
   const { openCandidateId, closeCandidate } = useUi()
@@ -33,7 +28,7 @@ export default function CandidateDrawer() {
 
   // call log form
   const [callNote, setCallNote]     = useState('')
-  const [callOutcome, setCallOutcome] = useState('neutral')
+  const [callOutcome, setCallOutcome] = useState('followup')
   const [savingCall, setSavingCall]   = useState(false)
 
   const candidate = candidates.find(c => c.id === openCandidateId)
@@ -106,6 +101,13 @@ export default function CandidateDrawer() {
 
       {candidate.stage === 'hired'      && <div className="mt-3"><Stamp tone="stamp">Hired ✓</Stamp></div>}
       {candidate.stage === 'terminated' && <div className="mt-3"><Stamp tone="rust">Terminated</Stamp></div>}
+      {CALL_STATUS_MAP[candidate.callStatus] && (
+        <div className="mt-3">
+          <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${CALL_STATUS_MAP[candidate.callStatus].badge}`}>
+            {CALL_STATUS_MAP[candidate.callStatus].label}
+          </span>
+        </div>
+      )}
 
       {/* ── Quick actions ── */}
       <div className="mt-4 flex gap-2">
@@ -238,16 +240,29 @@ export default function CandidateDrawer() {
               <textarea value={callNote} onChange={e => setCallNote(e.target.value)} rows={2}
                 placeholder="What was discussed?"
                 className="w-full rounded-lg border border-ink-100 bg-paper-card px-3 py-2 text-sm outline-none focus:border-saffron" />
-              <div className="flex gap-2">
-                <select value={callOutcome} onChange={e => setCallOutcome(e.target.value)}
-                  className="flex-1 rounded-lg border border-ink-100 bg-paper-card px-3 py-2 text-sm outline-none focus:border-saffron">
-                  {OUTCOMES.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
-                </select>
-                <button type="submit" disabled={savingCall || !callNote.trim()}
-                  className="flex items-center gap-1.5 rounded-lg bg-ink-800 px-4 py-2 text-sm font-semibold text-paper disabled:opacity-50">
-                  <PhoneCall size={14} /> Save
-                </button>
+
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate">Outcome</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {CALL_STATUSES.map(o => (
+                  <button
+                    key={o.key}
+                    type="button"
+                    onClick={() => setCallOutcome(o.key)}
+                    className={`rounded-lg border px-2.5 py-2 text-left text-xs font-semibold transition-colors ${
+                      callOutcome === o.key
+                        ? o.badge + ' ring-1 ring-inset ring-current'
+                        : 'border-ink-100 text-slate hover:bg-ink-50'
+                    }`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
               </div>
+
+              <button type="submit" disabled={savingCall || !callNote.trim()}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-ink-800 px-4 py-2 text-sm font-semibold text-paper disabled:opacity-50">
+                <PhoneCall size={14} /> Save call
+              </button>
             </form>
           </div>
 
@@ -278,7 +293,7 @@ export default function CandidateDrawer() {
 
       <div className="perforated mt-6" />
       <div className="mt-4 flex items-center justify-between text-xs text-ink-400">
-        <span>Added {timeAgo(candidate.createdAt)}</span>
+        <span>Added {formatDateTime(candidate.createdAt)} <span className="text-ink-300">({timeAgo(candidate.createdAt)})</span></span>
         <button onClick={() => setConfirmDelete(true)}
           className="flex items-center gap-1 font-semibold text-rust hover:text-rust-600">
           <Trash2 size={14} /> Remove

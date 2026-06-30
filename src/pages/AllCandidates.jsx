@@ -5,7 +5,8 @@ import { Avatar, EmptyState } from '../components/ui/Primitives'
 import FollowUpBadge from '../components/FollowUpBadge'
 import { useApp } from '../store/AppContext'
 import { useUi } from '../store/UiContext'
-import { STAGES, stageBadgeClasses } from '../lib/constants'
+import { STAGES, stageBadgeClasses, CALL_STATUS_MAP } from '../lib/constants'
+import { formatDateTime } from '../lib/date'
 import { exportCandidatesCsv } from '../lib/csv'
 import { Users } from 'lucide-react'
 
@@ -69,17 +70,22 @@ export default function AllCandidates() {
                   <th className="px-4 py-3">Candidate</th>
                   <th className="hidden px-4 py-3 sm:table-cell">Pipeline</th>
                   <th className="px-4 py-3">Stage</th>
+                  <th className="px-4 py-3">Call status</th>
                   <th className="hidden px-4 py-3 lg:table-cell">Follow-up</th>
+                  <th className="hidden px-4 py-3 md:table-cell">Added</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((c) => {
                   const deptLabel = departments.find((d) => d.key === c.department)?.label || c.department
+                  const status = CALL_STATUS_MAP[c.callStatus]
                   return (
                     <tr
                       key={c.id}
                       onClick={() => openCandidate(c.id)}
-                      className="cursor-pointer border-t border-ink-100 hover:bg-paper-dim/50"
+                      className={`cursor-pointer border-t border-ink-100 hover:bg-paper-dim/50 ${
+                        status ? { positive: 'border-l-4 border-l-stamp', rnr: 'border-l-4 border-l-amber', followup: 'border-l-4 border-l-sky', rejected: 'border-l-4 border-l-rust' }[c.callStatus] : ''
+                      }`}
                     >
                       <td className="flex items-center gap-2.5 px-4 py-3">
                         <Avatar name={c.name} size={32} />
@@ -94,7 +100,13 @@ export default function AllCandidates() {
                           {STAGES.find((s) => s.key === c.stage)?.label}
                         </span>
                       </td>
+                      <td className="px-4 py-3">
+                        {status ? (
+                          <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${status.badge}`}>{status.label}</span>
+                        ) : <span className="text-xs text-ink-300">—</span>}
+                      </td>
                       <td className="hidden px-4 py-3 lg:table-cell"><FollowUpBadge date={c.nextFollowUp} /></td>
+                      <td className="hidden px-4 py-3 text-xs text-slate md:table-cell">{formatDateTime(c.createdAt)}</td>
                     </tr>
                   )
                 })}

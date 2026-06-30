@@ -68,6 +68,7 @@ export function AppProvider({ children }) {
     assignedTo:   String(c.assignedTo  || ''),
     notes:        String(c.notes       || ''),
     nextFollowUp: c.nextFollowUp instanceof Date ? c.nextFollowUp.toISOString().slice(0,10) : (c.nextFollowUp ? String(c.nextFollowUp) : null),
+    callStatus:   c.callStatus ? String(c.callStatus) : null,
     createdAt:    String(c.createdAt   || ''),
     updatedAt:    String(c.updatedAt   || ''),
   })
@@ -191,6 +192,10 @@ export function AppProvider({ children }) {
       const res = await backend.addCallLog(candidateId, entry)
       const row = res.callLog || { id: Date.now(), candidateId, date: new Date().toISOString().slice(0,10), ...entry }
       setCallLogs(ls => [row, ...ls])
+      if (entry.outcome) {
+        setCandidates(cs => cs.map(c => String(c.id) === String(candidateId) ? { ...c, callStatus: entry.outcome } : c))
+        try { await backend.updateCandidate(candidateId, { callStatus: entry.outcome }) } catch {}
+      }
       invalidateCache()
       pushToast('Call logged', 'success')
       return row

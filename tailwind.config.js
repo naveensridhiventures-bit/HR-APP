@@ -40,6 +40,20 @@ export default {
         },
         slate: {
           DEFAULT: '#5B6472'
+        },
+        sky: {
+          DEFAULT: '#2C6FB0',
+          50: '#E9F1FA',
+          100: '#CCE0F2',
+          600: '#235A8C',
+          700: '#1B4569'
+        },
+        amber: {
+          DEFAULT: '#C99A1F',
+          50: '#FBF3DD',
+          100: '#F5E6B8',
+          600: '#A77E16',
+          700: '#7E5F10'
         }
       },
       fontFamily: {

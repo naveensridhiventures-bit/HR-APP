@@ -23,7 +23,7 @@ const COMPANY_NAME_DEFAULT = 'Sridhi HR'
 const CACHE_KEY = 'sridhi_hr_list_v3'
 const CACHE_SECONDS = 60
 
-const CANDIDATE_HEADERS   = ['ID','Name','Phone','Department','Role','Stage','Source','AssignedTo','NextFollowUp','Notes','CreatedAt','UpdatedAt']
+const CANDIDATE_HEADERS   = ['ID','Name','Phone','Department','Role','Stage','Source','AssignedTo','NextFollowUp','Notes','CallStatus','CreatedAt','UpdatedAt']
 const FOLLOWUP_HEADERS    = ['ID','CandidateID','Date','Note','NextFollowUp']
 const CALLLOG_HEADERS     = ['ID','CandidateID','HR','Date','Note','Outcome']
 const DEPARTMENT_HEADERS  = ['Key','Label']
@@ -99,6 +99,10 @@ function getOrCreate(name, headers, defaultRows) {
     if (defaultRows && defaultRows.length)
       sheet.getRange(2, 1, defaultRows.length, defaultRows[0].length).setValues(defaultRows)
   }
+  if (name === 'Candidates') {
+    const createdAtCol = CANDIDATE_HEADERS.indexOf('CreatedAt') + 1
+    sheet.getRange(2, createdAtCol, Math.max(sheet.getMaxRows() - 1, 1), 1).setNumberFormat('@')
+  }
   return sheet
 }
 
@@ -131,6 +135,7 @@ function fmtCell(v) {
 }
 
 function today() { return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd') }
+function timestamp() { return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm:ss") }
 
 function newId(prefix) { return `${prefix}_${Date.now()}_${Math.floor(Math.random()*1000)}` }
 
@@ -223,11 +228,12 @@ function handleList() {
 
 function handleAddCandidate(c) {
   const sheet = candidatesSheet()
-  const now = today()
+  const createdAt = timestamp()
+  const updatedAt = today()
   const id  = newId('c')
   sheet.appendRow([id, c.name||'', c.phone||'', c.department||'', c.role||'',
-    c.stage||'applied', c.source||'', c.assignedTo||'', c.nextFollowUp||'', c.notes||'', now, now])
-  return { candidate: { id, ...c, createdAt: now, updatedAt: now } }
+    c.stage||'applied', c.source||'', c.assignedTo||'', c.nextFollowUp||'', c.notes||'', c.callStatus||'', createdAt, updatedAt])
+  return { candidate: { id, ...c, createdAt, updatedAt } }
 }
 
 function handleUpdateCandidate(id, fields) {
@@ -262,6 +268,7 @@ function handleAddCallLog(candidateId, entry) {
   const now   = today()
   const id    = newId('cl')
   sheet.appendRow([id, candidateId, entry.hr||'', now, entry.note||'', entry.outcome||'neutral'])
+  if (entry.outcome) handleUpdateCandidate(candidateId, { callStatus: entry.outcome })
   return { callLog: { id, candidateId, date: now, ...entry } }
 }
 

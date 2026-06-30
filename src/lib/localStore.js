@@ -1,5 +1,5 @@
 import { DEFAULT_DEPARTMENTS, DEFAULT_ROLES, DEFAULT_HR_LIST } from './constants'
-import { todayISO } from './date'
+import { todayISO, nowISO } from './date'
 
 const KEY = 'sridhi-hr:v2'
 
@@ -33,7 +33,7 @@ export const localStore = {
 
   addCandidate: async (candidate) => {
     const data = read()
-    const row = { ...candidate, id: uid(), createdAt: todayISO(), updatedAt: todayISO() }
+    const row = { ...candidate, id: uid(), createdAt: nowISO(), updatedAt: todayISO() }
     data.candidates = [row, ...data.candidates]; write(data)
     return { candidate: row }
   },
@@ -64,7 +64,13 @@ export const localStore = {
   addCallLog: async (candidateId, entry) => {
     const data = read()
     const row = { id: uid(), candidateId, date: todayISO(), ...entry }
-    data.callLogs = [row, ...(data.callLogs || [])]; write(data); return { callLog: row }
+    data.callLogs = [row, ...(data.callLogs || [])]
+    if (entry.outcome) {
+      data.candidates = data.candidates.map(c =>
+        c.id === candidateId ? { ...c, callStatus: entry.outcome, updatedAt: todayISO() } : c
+      )
+    }
+    write(data); return { callLog: row }
   },
 
   addDepartment: async (label) => {

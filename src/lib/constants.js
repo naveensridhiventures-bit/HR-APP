@@ -47,6 +47,31 @@ export const SOURCES = [
   'Walk-in', 'Referral', 'WhatsApp', 'JustDial', 'Naukri', 'Agency', 'Newspaper', 'Other',
 ]
 
+// Call-status colour scheme (confirmed with HR team):
+//   spoken / positive  -> GREEN
+//   RNR (no answer)    -> YELLOW
+//   follow-up needed   -> BLUE
+//   rejected           -> RED
+export const CALL_STATUSES = [
+  { key: 'positive', label: '✅ Spoken — Positive', dot: 'bg-stamp',   text: 'text-stamp-600',  badge: 'bg-stamp-50 text-stamp-600 border-stamp/30' },
+  { key: 'rnr',       label: '📵 RNR (No Answer)',   dot: 'bg-amber',  text: 'text-amber-700',  badge: 'bg-amber-50 text-amber-700 border-amber/40' },
+  { key: 'followup',  label: '🔄 Follow-up',         dot: 'bg-sky',    text: 'text-sky-700',    badge: 'bg-sky-50 text-sky-700 border-sky/30' },
+  { key: 'rejected',  label: '❌ Rejected',           dot: 'bg-rust',   text: 'text-rust-600',   badge: 'bg-rust-50 text-rust-600 border-rust/30' },
+]
+export const CALL_STATUS_MAP = Object.fromEntries(CALL_STATUSES.map(s => [s.key, s]))
+
+// Card border/background tint by call status — so the colour is visible
+// on the pipeline board without opening the candidate.
+export const callStatusCardClasses = (status) => {
+  switch (status) {
+    case 'positive': return 'border-l-4 border-l-stamp bg-stamp-50/40'
+    case 'rnr':       return 'border-l-4 border-l-amber bg-amber-50/40'
+    case 'followup':  return 'border-l-4 border-l-sky bg-sky-50/40'
+    case 'rejected':  return 'border-l-4 border-l-rust bg-rust-50/40'
+    default:          return 'border-l-4 border-l-ink-100'
+  }
+}
+
 export const stageBadgeClasses = (key) => {
   switch (key) {
     case 'hired':      return 'bg-stamp-50 text-stamp-600 border-stamp/30'

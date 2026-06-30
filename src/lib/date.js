@@ -53,6 +53,21 @@ export const relativeFollowUpLabel = (isoDate) => {
   return { label: formatDate(isoDate), tone: 'future' }
 }
 
+export const nowISO = () => new Date().toISOString()
+
+const pad = (n) => String(n).padStart(2, '0')
+
+export const formatDateTime = (isoDateTime) => {
+  if (!isoDateTime) return '—'
+  const d = new Date(isoDateTime)
+  if (Number.isNaN(d.getTime())) return '—'
+  let hrs = d.getHours()
+  const mins = pad(d.getMinutes())
+  const ampm = hrs >= 12 ? 'PM' : 'AM'
+  hrs = hrs % 12 || 12
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}, ${pad(hrs)}:${mins} ${ampm}`
+}
+
 export const timeAgo = (isoDateTime) => {
   if (!isoDateTime) return ''
   const diffMs = Date.now() - new Date(isoDateTime).getTime()
