@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { BarChart2, CalendarClock, LayoutGrid, Plus, Search, Settings, Users } from 'lucide-react'
+import { BarChart2, CalendarClock, LayoutGrid, Plus, Radar, Search, Settings, Users } from 'lucide-react'
 import { useApp } from '../store/AppContext'
 import { useUi } from '../store/UiContext'
 import { Avatar } from './ui/Primitives'
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/pipeline',    label: 'Pipelines', mobileLabel: 'Pipeline',  icon: Users },
   { to: '/followups',   label: 'Follow-ups',mobileLabel: 'Follow-ups',icon: CalendarClock },
   { to: '/candidates',  label: 'Candidates',mobileLabel: 'All',       icon: Search },
+  { to: '/sources',     label: 'Lead Sources', mobileLabel: 'Sources',icon: Radar },
   { to: '/performance', label: 'HR Performance', mobileLabel: 'Stats',icon: BarChart2 },
   { to: '/settings',    label: 'Settings',  mobileLabel: 'Settings',  icon: Settings },
 ]
@@ -60,7 +61,7 @@ export function BottomNav() {
     { to: '/',            label: 'Dashboard', mobileLabel: 'Home',      icon: LayoutGrid, end: true },
     { to: '/pipeline',    label: 'Pipelines', mobileLabel: 'Pipeline',  icon: Users },
     { to: '/followups',   label: 'Follow-ups',mobileLabel: 'Follow-ups',icon: CalendarClock },
-    { to: '/performance', label: 'HR Performance', mobileLabel: 'Stats',icon: BarChart2 },
+    { to: '/sources',     label: 'Lead Sources', mobileLabel: 'Sources',icon: Radar },
     { to: '/settings',    label: 'Settings',  mobileLabel: 'Settings',  icon: Settings },
   ]
   return (

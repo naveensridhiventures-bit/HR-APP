@@ -11,6 +11,7 @@ import Pipeline from './pages/Pipeline'
 import FollowUps from './pages/FollowUps'
 import AllCandidates from './pages/AllCandidates'
 import Performance from './pages/Performance'
+import Sources from './pages/Sources'
 import Settings from './pages/Settings'
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
                 <Route path="/followups"   element={<FollowUps />} />
                 <Route path="/candidates"  element={<AllCandidates />} />
                 <Route path="/performance" element={<Performance />} />
+                <Route path="/sources"     element={<Sources />} />
                 <Route path="/settings"    element={<Settings />} />
               </Routes>
             </main>

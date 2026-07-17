@@ -1,6 +1,22 @@
 import { AlertTriangle, X } from 'lucide-react'
+import { sourceMeta } from '../../lib/constants'
 
 const PALETTE = ['#16213E', '#C9801B', '#246340', '#9E332B', '#5A6896', '#9C6314']
+
+export function SourceBadge({ source, size = 'sm', className = '' }) {
+  if (!source) return null
+  const meta = sourceMeta(source)
+  const pad = size === 'xs' ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-0.5 text-[11px]'
+  return (
+    <span
+      title={source}
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full border font-semibold leading-none ${pad} ${meta.badge} ${className}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+      {source}
+    </span>
+  )
+}
 
 export function Avatar({ name, size = 40 }) {
   const initials = (name || '?')

@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Download, Search } from 'lucide-react'
 import { TopBar } from '../components/Shell'
-import { Avatar, EmptyState } from '../components/ui/Primitives'
+import { Avatar, EmptyState, SourceBadge } from '../components/ui/Primitives'
 import FollowUpBadge from '../components/FollowUpBadge'
 import { useApp } from '../store/AppContext'
 import { useUi } from '../store/UiContext'
-import { STAGES, stageBadgeClasses, CALL_STATUS_MAP } from '../lib/constants'
+import { STAGES, SOURCES, stageBadgeClasses, CALL_STATUS_MAP } from '../lib/constants'
 import { formatDateTime } from '../lib/date'
 import { exportCandidatesCsv } from '../lib/csv'
 import { Users } from 'lucide-react'
@@ -13,21 +14,29 @@ import { Users } from 'lucide-react'
 export default function AllCandidates() {
   const { candidates, departments } = useApp()
   const { openCandidate } = useUi()
+  const [params] = useSearchParams()
   const [query, setQuery] = useState('')
   const [dept, setDept] = useState('all')
   const [stage, setStage] = useState('all')
+  const [source, setSource] = useState(params.get('source') || 'all')
+
+  const sourcesInUse = useMemo(() => {
+    const used = new Set(candidates.map((c) => c.source).filter(Boolean))
+    return SOURCES.filter((s) => used.has(s)).concat([...used].filter((s) => !SOURCES.includes(s)))
+  }, [candidates])
 
   const filtered = useMemo(() => {
     return candidates.filter((c) => {
       if (dept !== 'all' && c.department !== dept) return false
       if (stage !== 'all' && c.stage !== stage) return false
+      if (source !== 'all' && c.source !== source) return false
       if (query.trim()) {
         const q = query.toLowerCase()
         if (!c.name?.toLowerCase().includes(q) && !c.phone?.includes(query)) return false
       }
       return true
     }).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
-  }, [candidates, dept, stage, query])
+  }, [candidates, dept, stage, source, query])
 
   return (
     <div className="pb-24 lg:pb-10">
@@ -51,6 +60,10 @@ export default function AllCandidates() {
           <option value="all">All stages</option>
           {STAGES.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
         </select>
+        <select value={source} onChange={(e) => setSource(e.target.value)} className="rounded-lg border border-ink-100 bg-paper-card px-3 py-2 text-sm">
+          <option value="all">All sources</option>
+          {sourcesInUse.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
         <button
           onClick={() => exportCandidatesCsv(filtered, departments)}
           className="ml-auto flex items-center gap-1.5 rounded-lg border border-ink-100 bg-paper-card px-3 py-2 text-sm font-semibold text-ink-700 hover:bg-ink-50"
@@ -70,6 +83,7 @@ export default function AllCandidates() {
                   <th className="px-4 py-3">Candidate</th>
                   <th className="hidden px-4 py-3 sm:table-cell">Pipeline</th>
                   <th className="px-4 py-3">Stage</th>
+                  <th className="hidden px-4 py-3 sm:table-cell">Source</th>
                   <th className="px-4 py-3">Call status</th>
                   <th className="hidden px-4 py-3 lg:table-cell">Follow-up</th>
                   <th className="hidden px-4 py-3 md:table-cell">Added</th>
@@ -99,6 +113,9 @@ export default function AllCandidates() {
                         <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${stageBadgeClasses(c.stage)}`}>
                           {STAGES.find((s) => s.key === c.stage)?.label}
                         </span>
+                      </td>
+                      <td className="hidden px-4 py-3 sm:table-cell">
+                        {c.source ? <SourceBadge source={c.source} size="xs" /> : <span className="text-xs text-ink-300">—</span>}
                       </td>
                       <td className="px-4 py-3">
                         {status ? (

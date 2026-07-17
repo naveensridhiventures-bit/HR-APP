@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Edit3, Phone, PhoneCall, Trash2, UserCog } from 'lucide-react'
-import { Avatar, ConfirmDialog, Sheet, Stamp } from './ui/Primitives'
+import { Avatar, ConfirmDialog, Sheet, SourceBadge, Stamp } from './ui/Primitives'
 import FollowUpBadge from './FollowUpBadge'
 import WhatsAppMenu from './WhatsAppMenu'
 import { useApp } from '../store/AppContext'
@@ -92,6 +92,9 @@ export default function CandidateDrawer() {
           )}
           <p className="truncate text-sm text-slate">{candidate.role || '—'} · {deptLabel}</p>
           <p className="font-mono-data text-xs text-ink-400">{candidate.phone}</p>
+          {candidate.source && (
+            <div className="mt-1.5"><SourceBadge source={candidate.source} /></div>
+          )}
         </div>
         <button onClick={() => setEditing(v => !v)}
           className="rounded-full p-2 text-slate hover:bg-ink-50">
@@ -143,9 +146,6 @@ export default function CandidateDrawer() {
                 <span className="text-sm font-semibold text-ink-800">
                   {candidate.assignedTo || <span className="font-normal text-slate">Unassigned</span>}
                 </span>
-                {candidate.source && (
-                  <span className="ml-2 text-xs text-slate">· {candidate.source}</span>
-                )}
               </div>
               <button
                 onClick={() => setReassigning(true)}

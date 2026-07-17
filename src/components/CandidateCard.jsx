@@ -1,5 +1,5 @@
 import { Phone } from 'lucide-react'
-import { Avatar } from './ui/Primitives'
+import { Avatar, SourceBadge } from './ui/Primitives'
 import FollowUpBadge from './FollowUpBadge'
 import WhatsAppMenu from './WhatsAppMenu'
 import { telLink } from '../lib/contact'
@@ -33,7 +33,13 @@ export default function CandidateCard({ candidate, departments = DEFAULT_DEPARTM
         )}
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
+      {candidate.source && (
+        <div className="mt-2.5">
+          <SourceBadge source={candidate.source} size="xs" />
+        </div>
+      )}
+
+      <div className="mt-2.5 flex items-center justify-between">
         <FollowUpBadge date={candidate.nextFollowUp} />
         <div className="flex items-center gap-1 opacity-80">
           <a

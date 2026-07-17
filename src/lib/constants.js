@@ -43,9 +43,43 @@ export const ACTIVE_STAGE_KEYS = ['applied', 'screening', 'interview', 'offer']
 export const CLOSED_STAGE_KEYS = ['hired', 'on_hold', 'rejected', 'terminated']
 export const STAGE_MAP = Object.fromEntries(STAGES.map(s => [s.key, s]))
 
+// Lead sources — the actual channels leads come in from. Add more any time;
+// unlisted/custom values still work everywhere (they just fall back to a
+// neutral badge via sourceBadgeClasses' default case).
 export const SOURCES = [
-  'Walk-in', 'Referral', 'WhatsApp', 'JustDial', 'Naukri', 'Agency', 'Newspaper', 'Other',
+  'Referral',
+  'WorkIndia',
+  'Apna',
+  'Instagram Boost Ads',
+  'Naukri',
+  'JustDial',
+  'WhatsApp',
+  'Walk-in',
+  'Newspaper',
+  'Agency',
+  'Other',
 ]
+
+// Per-source colour + short tag, so a lead's origin is recognisable at a
+// glance on cards, tables and the Sources (CRM) dashboard without reading text.
+export const SOURCE_META = {
+  'Referral':             { tag: 'REF',  dot: 'bg-stamp',   badge: 'bg-stamp-50 text-stamp-600 border-stamp/30' },
+  'WorkIndia':            { tag: 'WI',   dot: 'bg-sky',     badge: 'bg-sky-50 text-sky-700 border-sky/30' },
+  'Apna':                 { tag: 'APNA', dot: 'bg-saffron', badge: 'bg-saffron-50 text-saffron-700 border-saffron/30' },
+  'Instagram Boost Ads':  { tag: 'IG',   dot: 'bg-violet',  badge: 'bg-violet-50 text-violet-600 border-violet/30' },
+  'Naukri':               { tag: 'NKR',  dot: 'bg-teal',    badge: 'bg-teal-50 text-teal-600 border-teal/30' },
+  'JustDial':             { tag: 'JD',   dot: 'bg-amber',   badge: 'bg-amber-50 text-amber-700 border-amber/40' },
+  'WhatsApp':             { tag: 'WA',   dot: 'bg-stamp',   badge: 'bg-stamp-50 text-stamp-600 border-stamp/30' },
+  'Walk-in':              { tag: 'WLK',  dot: 'bg-ink-400', badge: 'bg-ink-50 text-ink-600 border-ink-100' },
+  'Newspaper':            { tag: 'NP',   dot: 'bg-ink-400', badge: 'bg-ink-50 text-ink-600 border-ink-100' },
+  'Agency':               { tag: 'AGY',  dot: 'bg-rust',    badge: 'bg-rust-50 text-rust-600 border-rust/30' },
+  'Other':                { tag: 'OTH',  dot: 'bg-slate',   badge: 'bg-ink-50 text-slate border-ink-100' },
+}
+
+export const sourceMeta = (source) =>
+  SOURCE_META[source] || { tag: (source || '?').slice(0, 4).toUpperCase(), dot: 'bg-slate', badge: 'bg-ink-50 text-slate border-ink-100' }
+
+export const sourceBadgeClasses = (source) => sourceMeta(source).badge
 
 // Call-status colour scheme (confirmed with HR team):
 //   spoken / positive  -> GREEN
